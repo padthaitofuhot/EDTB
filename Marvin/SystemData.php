@@ -430,3 +430,18 @@ if (isset($_GET["rm"]))
 	((is_null($___mysqli_res = mysqli_close($link))) ? false : $___mysqli_res);
 	exit;
 }
+
+if (isset($_GET["sys_short"]))
+{
+
+	$va_text .= "unknown";
+
+	if (!empty($curSys["name"]))
+	{
+		$va_text = $curSys["name"];
+	}
+
+	echo tts_override($va_text);
+
+	exit;
+}
