@@ -1,25 +1,31 @@
 <?php
 /*
-*    ED ToolBox, a companion web app for the video game Elite Dangerous
-*    (C) 1984 - 2015 Frontier Developments Plc.
-*    ED ToolBox or its creator are not affiliated with Frontier Developments Plc.
+*  ED ToolBox, a companion web app for the video game Elite Dangerous
+*  (C) 1984 - 2016 Frontier Developments Plc.
+*  ED ToolBox or its creator are not affiliated with Frontier Developments Plc.
 *
-*    Copyright (C) 2016 Mauri Kujala (contact@edtb.xyz)
+*  This program is free software; you can redistribute it and/or
+*  modify it under the terms of the GNU General Public License
+*  as published by the Free Software Foundation; either version 2
+*  of the License, or (at your option) any later version.
 *
-*    This program is free software; you can redistribute it and/or
-*    modify it under the terms of the GNU General Public License
-*    as published by the Free Software Foundation; either version 2
-*    of the License, or (at your option) any later version.
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
 *
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with this program; if not, write to the Free Software
-*    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+*  You should have received a copy of the GNU General Public License
+*  along with this program; if not, write to the Free Software
+*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
+
+/**
+ * Ajax backend file to fetch data for Neighborhood Map points
+ *
+ * @author Mauri Kujala <contact@edtb.xyz>
+ * @copyright Copyright (C) 2016, Mauri Kujala
+ * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU Public License version 2
+ */
 
 require_once("" . $_SERVER["DOCUMENT_ROOT"] . "/source/functions.php");
 
@@ -29,7 +35,7 @@ $system = $_GET["system"];
 /*	 check if system has screenshots
 */
 
-$screenshots = has_screenshots($system) ? '<a href="/gallery.php?spgmGal=' . urlencode($system) . '" title="View image gallery"><img src="/style/img/image.png" alt="Gallery" style="margin-left:5px;vertical-align:top;" /></a>' : "";
+$screenshots = has_screenshots($system) ? '<a href="/gallery.php?spgmGal=' . urlencode($system) . '" title="View image gallery"><img src="/style/img/image.png" alt="Gallery" style="margin-left:5px;vertical-align:top" /></a>' : "";
 
 /*
 *	check if system is in the bookmarks
@@ -83,7 +89,7 @@ if ($count > 0)
 
 	if (!$visit && !$text)
 	{
-		echo '<a href="system.php?system_name=' . urlencode($system) . '" style="color:inherit;">' . $system . '</a>' . $screenshots . '<br />No additional information';
+		echo '<a href="system.php?system_name=' . urlencode($system) . '" style="color:inherit">' . $system . '</a>' . $screenshots . '<br />No additional information';
 	}
 	else
 	{
@@ -128,7 +134,7 @@ if ($count > 0)
 			$text = $logarr["text"];
 
 			echo '<br />
-					<a href="/log.php?system=' . urlencode($system) . '" style="color:inherit;font-weight:bold;" title="View the log for this system">
+					<a href="/log.php?system=' . urlencode($system) . '" style="color:inherit;font-weight:bold" title="View the log for this system">
 						' . $text . ' ...
 					</a>';
 		}

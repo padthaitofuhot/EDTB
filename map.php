@@ -1,24 +1,30 @@
 <?php
 /*
-*    ED ToolBox, a companion web app for the video game Elite Dangerous
-*    (C) 1984 - 2015 Frontier Developments Plc.
-*    ED ToolBox or its creator are not affiliated with Frontier Developments Plc.
+*  ED ToolBox, a companion web app for the video game Elite Dangerous
+*  (C) 1984 - 2016 Frontier Developments Plc.
+*  ED ToolBox or its creator are not affiliated with Frontier Developments Plc.
 *
-*    Copyright (C) 2016 Mauri Kujala (contact@edtb.xyz)
+*  This program is free software; you can redistribute it and/or
+*  modify it under the terms of the GNU General Public License
+*  as published by the Free Software Foundation; either version 2
+*  of the License, or (at your option) any later version.
 *
-*    This program is free software; you can redistribute it and/or
-*    modify it under the terms of the GNU General Public License
-*    as published by the Free Software Foundation; either version 2
-*    of the License, or (at your option) any later version.
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
 *
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with this program; if not, write to the Free Software
-*    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+*  You should have received a copy of the GNU General Public License
+*  along with this program; if not, write to the Free Software
+*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+*/
+
+/**
+ * Neighborhood map
+ *
+ * @author Mauri Kujala <contact@edtb.xyz>
+ * @copyright Copyright (C) 2016, Mauri Kujala
+ * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU Public License version 2
 */
 
 $pagetitle = "Galaxy Map&nbsp;&nbsp;&&nbsp;&nbsp;Neighborhood Map";
@@ -30,10 +36,10 @@ if (isset($_GET["maxdistance"]) && is_numeric($_GET["maxdistance"]))
 }
 ?>
 <div class="entries">
-	<table style="margin-left:370px;">
+	<table style="margin-left:370px">
 		<tbody>
 			<tr>
-				<th style="text-align: center;">
+				<th style="text-align: center">
 					<ul class="pagination">
 						<li><a href="/galmap.php">Galaxy Map</a></li>
 						<li class="actives"><a href="/map.php">Neighborhood Map</a></li>
@@ -48,7 +54,7 @@ if (isset($_GET["maxdistance"]) && is_numeric($_GET["maxdistance"]))
 		<div id="disclaimer" onclick='$("#disclaimer").fadeToggle("fast")'></div>
 		<div id="map_legend" onclick='$("#map_legend2").fadeToggle("fast")'>Legend</div>
 		<div id="map_legend2">
-			<table style="padding:5px;">
+			<table style="padding:5px">
 				<tr>
 					<td><div style="background-color:rgba(231, 216, 132, 0.7);width:7px;height:7px;border-radius:50%;vertical-align:middle"></div></td>
 					<td>Empire</td>
@@ -70,16 +76,16 @@ if (isset($_GET["maxdistance"]) && is_numeric($_GET["maxdistance"]))
 					<td>Sol</td>
 				</tr>
 				<tr>
-					<td style="text-align:center;vertical-align:middle;">
-						<div style="background-color:#f00;width:8px;height:8px;border-radius:50%;">
+					<td style="text-align:center;vertical-align:middle">
+						<div style="background-color:#f00;width:8px;height:8px;border-radius:50%">
 							<div style="position:relative;left:2px;top:2px;background-color:#ccc;width:4px;height:4px;border-radius:50%"></div>
 						</div>
 					</td>
 					<td>Current Location</td>
 				</tr>
 				<tr>
-					<td style="text-align:center;vertical-align:middle;">
-						<div style="background-color:#2e92e7;width:8px;height:8px;border-radius:50%;">
+					<td style="text-align:center;vertical-align:middle">
+						<div style="background-color:#2e92e7;width:8px;height:8px;border-radius:50%">
 							<div style="position:relative;left:2px;top:2px;background-color:#ccc;width:4px;height:4px;border-radius:50%"></div>
 						</div>
 					</td>

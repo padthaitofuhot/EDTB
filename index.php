@@ -1,24 +1,30 @@
 <?php
 /*
-*    ED ToolBox, a companion web app for the video game Elite Dangerous
-*    (C) 1984 - 2015 Frontier Developments Plc.
-*    ED ToolBox or its creator are not affiliated with Frontier Developments Plc.
+*  ED ToolBox, a companion web app for the video game Elite Dangerous
+*  (C) 1984 - 2016 Frontier Developments Plc.
+*  ED ToolBox or its creator are not affiliated with Frontier Developments Plc.
 *
-*    Copyright (C) 2016 Mauri Kujala (contact@edtb.xyz)
+*  This program is free software; you can redistribute it and/or
+*  modify it under the terms of the GNU General Public License
+*  as published by the Free Software Foundation; either version 2
+*  of the License, or (at your option) any later version.
 *
-*    This program is free software; you can redistribute it and/or
-*    modify it under the terms of the GNU General Public License
-*    as published by the Free Software Foundation; either version 2
-*    of the License, or (at your option) any later version.
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
 *
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with this program; if not, write to the Free Software
-*    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+*  You should have received a copy of the GNU General Public License
+*  along with this program; if not, write to the Free Software
+*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+*/
+
+/**
+ * Front page
+ *
+ * @author Mauri Kujala <contact@edtb.xyz>
+ * @copyright Copyright (C) 2016, Mauri Kujala
+ * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU Public License version 2
 */
 
 /*
@@ -80,16 +86,16 @@ if (file_exists("" . $_SERVER["DOCUMENT_ROOT"] . "/install.php"))
 	{
 		echo notice("Removal of installation files was unsuccesfull.<br />Please delete install.php and install.sql from the EDTB folder.", "Install ED ToolBox");
 		echo installer_footer();
-		exit();
+		exit;
 	}
 
 	if (!isset($pwd))
 	{
-		echo notice("Looks like this is your first time running ED Toolbox.<br />Congratulations on your excellent choice!<br /><br />To get you set up, you need to run a script that creates the necessary database tables. The script may take a while to run.<br /><br /><div id='text' style='text-align:center;'><a href='install.php?install' onclick='document.getElementById(\"loadin\").style.display=\"block\";document.getElementById(\"text\").style.display=\"none\";'>Click here when you're ready to go.</a></div><div id='loadin' style='text-align:center;display:none;'><img src='/style/img/loading.gif' alt='Loading' \\></div>", "Install ED ToolBox 1/2");
+		echo notice("Looks like this is your first time running ED Toolbox.<br />Congratulations on your excellent choice!<br /><br />To get you set up, you need to run a script that creates the necessary database tables. The script may take a while to run.<br /><br /><div id='text' style='text-align:center'><a href='install.php?install' onclick='document.getElementById(\"loadin\").style.display=\"block\";document.getElementById(\"text\").style.display=\"none\"'>Click here when you're ready to go.</a></div><div id='loadin' style='text-align:center;display:none'><img src='/style/img/loading.gif' alt='Loading' \\></div>", "Install ED ToolBox 1/2");
 	}
 	else
 	{
-		echo notice("Looks like you've recently updated ED ToolBox to a new version.<br /><br />To get everything set up, you need to run a script that makes any necessary changes to the database. The script may take a while to run.<br /><br /><div id='text' style='text-align:center;'><a href='install.php?upgrade' onclick='document.getElementById(\"loadin\").style.display=\"block\";document.getElementById(\"text\").style.display=\"none\";'>Click here when you're ready to go.</a></div><div id='loadin' style='text-align:center;display:none;'><img src='/style/img/loading.gif' alt='Loading' \\></div>", "Upgrade ED ToolBox 1/2");
+		echo notice("Looks like you've recently updated ED ToolBox to a new version.<br /><br />To get everything set up, you need to run a script that makes any necessary changes to the database. The script may take a while to run.<br /><br /><div id='text' style='text-align:center'><a href='install.php?upgrade' onclick='document.getElementById(\"loadin\").style.display=\"block\";document.getElementById(\"text\").style.display=\"none\"'>Click here when you're ready to go.</a></div><div id='loadin' style='text-align:center;display:none'><img src='/style/img/loading.gif' alt='Loading' \\></div>", "Upgrade ED ToolBox 1/2");
 	}
 
 	echo installer_footer();

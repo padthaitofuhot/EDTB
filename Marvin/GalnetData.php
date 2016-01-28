@@ -1,36 +1,39 @@
 <?php
 /*
-*    ED ToolBox, a companion web app for the video game Elite Dangerous
-*    (C) 1984 - 2015 Frontier Developments Plc.
-*    ED ToolBox or its creator are not affiliated with Frontier Developments Plc.
+*  ED ToolBox, a companion web app for the video game Elite Dangerous
+*  (C) 1984 - 2016 Frontier Developments Plc.
+*  ED ToolBox or its creator are not affiliated with Frontier Developments Plc.
 *
-*    Copyright (C) 2016 Mauri Kujala (contact@edtb.xyz)
+*  This program is free software; you can redistribute it and/or
+*  modify it under the terms of the GNU General Public License
+*  as published by the Free Software Foundation; either version 2
+*  of the License, or (at your option) any later version.
 *
-*    This program is free software; you can redistribute it and/or
-*    modify it under the terms of the GNU General Public License
-*    as published by the Free Software Foundation; either version 2
-*    of the License, or (at your option) any later version.
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
 *
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with this program; if not, write to the Free Software
-*    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+*  You should have received a copy of the GNU General Public License
+*  along with this program; if not, write to the Free Software
+*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
+
+/**
+ * GalNet data for Marvin
+ *
+ * @author Mauri Kujala <contact@edtb.xyz>
+ * @copyright Copyright (C) 2016, Mauri Kujala
+ * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU Public License version 2
+ */
 
 require_once("" . $_SERVER["DOCUMENT_ROOT"] . "/source/functions.php");
 
-// get latest GalNet articles
-$ga_res = mysqli_query($GLOBALS["___mysqli_ston"], "	SELECT unixtime
-														FROM edtb_common
-														WHERE name = 'last_galnet_update'
-														LIMIT 1") or write_log(mysqli_error($GLOBALS["___mysqli_ston"]), __FILE__, __LINE__);
-$ga_arr = mysqli_fetch_assoc($ga_res);
+/*
+*	if data is older than 30 minutes, update
+*/
 
-$ga_last_update = $ga_arr["unixtime"] + 30*60; // 30 minutes
+$ga_last_update = edtb_common("last_galnet_update", "unixtime") + 30*60; // 30 minutes
 
 if ($ga_last_update < time())
 {
@@ -45,10 +48,9 @@ if ($ga_last_update < time())
 
 		$text = $dataga["description"];
 		$text = str_replace('<p><sub><i>-- Delivered by <a href="http://feed43.com/">Feed43</a> service</i></sub></p>', "", $text);
-		$text = str_replace('<br /><br />', '<br />', $text);
-		$text = str_replace('<br />', '.', $text);
+		$text = str_replace('<br />', PHP_EOL, $text);
 		$text = str_replace(' – ', ', ', $text);
-		$text = strip_tags($text);
+		$text = trim(strip_tags($text));
 
 		// exclude stuff
 		$continue = true;
@@ -71,14 +73,35 @@ if ($ga_last_update < time())
 
 			if ($in <= 4)
 			{
+				/*
+				*	write four of the latest articles to .txt files
+				*/
+
 				$newfile = "" . $_SERVER["DOCUMENT_ROOT"] . "/Marvin/galnet" . $in . ".txt";
-				$md5_old = md5_file($newfile);
 
-				file_put_contents($newfile, $to_write);
+				$old_file = "";
+				if (file_exists($newfile))
+				{
+					$old_file = file_get_contents($newfile);
+				}
 
-				$md5_new = md5_file($newfile);
+				if (!file_put_contents($newfile, $to_write))
+				{
+					$error = error_get_last();
+					write_log("Error: " . $error['message'] . "", __FILE__, __LINE__);
+				}
 
-				if ($md5_old != $md5_new)
+				/*
+				*	compare to the latest to see if new articles have been posted since last check
+				*/
+
+				$new_file = "-1";
+				if (file_exists($newfile))
+				{
+					$new_file = file_get_contents($newfile);
+				}
+
+				if ($new_file != $old_file)
 				{
 					mysqli_query($GLOBALS["___mysqli_ston"], "	UPDATE edtb_common
 																SET unixtime = UNIX_TIMESTAMP()
@@ -89,38 +112,36 @@ if ($ga_last_update < time())
 			$in++;
 		}
 	}
+
+	/*
+	*	update last_update time
+	*/
+
 	mysqli_query($GLOBALS["___mysqli_ston"], "	UPDATE edtb_common
 												SET unixtime = UNIX_TIMESTAMP()
 												WHERE name = 'last_galnet_update'
 												LIMIT 1") or write_log(mysqli_error($GLOBALS["___mysqli_ston"]), __FILE__, __LINE__);
 }
 
-$m_res = mysqli_query($GLOBALS["___mysqli_ston"], "	SELECT unixtime
-													FROM edtb_common
-													WHERE name = 'last_galnet_check'
-													LIMIT 1") or write_log(mysqli_error($GLOBALS["___mysqli_ston"]), __FILE__, __LINE__);
-$m_arr = mysqli_fetch_assoc($m_res);
+/*
+*	fetch last check time and last new article time
+*/
 
-$last_galnet_check = $m_arr["unixtime"];
-
-$g_res = mysqli_query($GLOBALS["___mysqli_ston"], "	SELECT unixtime
-													FROM edtb_common
-													WHERE name = 'last_galnet_new'
-													LIMIT 1") or write_log(mysqli_error($GLOBALS["___mysqli_ston"]), __FILE__, __LINE__);
-$g_arr = mysqli_fetch_assoc($g_res);
-
-$last_galnet_new = $g_arr["unixtime"];
+$last_galnet_check = edtb_common("last_galnet_check", "unixtime");
+$last_galnet_new = edtb_common("last_galnet_new", "unixtime");
 
 if ($last_galnet_new < $last_galnet_check)
 {
-	echo "No new GalNet articles have been published since you last asked " . get_timeago($last_galnet_check) . ".";
+	echo "No new GalNet articles have been published since you last asked " . get_timeago($last_galnet_check, false) . ".";
 }
 else
 {
 	echo "New GalNet articles have been published since you last asked. Would you like me to read them to you?";
 }
 
-file_put_contents("" . $_SERVER["DOCUMENT_ROOT"] . "/Marvin/galnet_new.txt", $last_galnet_new);
+/*
+*	 update last check time
+*/
 
 mysqli_query($GLOBALS["___mysqli_ston"], "	UPDATE edtb_common
 											SET unixtime = UNIX_TIMESTAMP()

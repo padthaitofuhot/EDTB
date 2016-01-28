@@ -1,32 +1,38 @@
 <?php
 /*
-*    ED ToolBox, a companion web app for the video game Elite Dangerous
-*    (C) 1984 - 2015 Frontier Developments Plc.
-*    ED ToolBox or its creator are not affiliated with Frontier Developments Plc.
+*  ED ToolBox, a companion web app for the video game Elite Dangerous
+*  (C) 1984 - 2016 Frontier Developments Plc.
+*  ED ToolBox or its creator are not affiliated with Frontier Developments Plc.
 *
-*    Copyright (C) 2016 Mauri Kujala (contact@edtb.xyz)
+*  This program is free software; you can redistribute it and/or
+*  modify it under the terms of the GNU General Public License
+*  as published by the Free Software Foundation; either version 2
+*  of the License, or (at your option) any later version.
 *
-*    This program is free software; you can redistribute it and/or
-*    modify it under the terms of the GNU General Public License
-*    as published by the Free Software Foundation; either version 2
-*    of the License, or (at your option) any later version.
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
 *
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with this program; if not, write to the Free Software
-*    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+*  You should have received a copy of the GNU General Public License
+*  along with this program; if not, write to the Free Software
+*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
+
+/**
+ * System data for Marvin
+ *
+ * @author Mauri Kujala <contact@edtb.xyz>
+ * @copyright Copyright (C) 2016, Mauri Kujala
+ * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU Public License version 2
+ */
 
 require_once("" . $_SERVER["DOCUMENT_ROOT"] . "/source/functions.php");
 
 $va_text = array();
 
 /*
-*	Voice Attack System Info
+*	System Info
 */
 
 if (isset($_GET["sys"]))
@@ -34,7 +40,7 @@ if (isset($_GET["sys"]))
 	$num_visits = mysqli_num_rows(mysqli_query($GLOBALS["___mysqli_ston"], "	SELECT id
 																				FROM user_visited_systems
 																				WHERE system_name = '" . mysqli_real_escape_string($GLOBALS["___mysqli_ston"], $curSys["name"]) . "'"))
-	or write_log(mysqli_error($GLOBALS["___mysqli_ston"]), __FILE__, __LINE__);
+																				or write_log(mysqli_error($GLOBALS["___mysqli_ston"]), __FILE__, __LINE__);
 
 	$va_text .= "No system data.";
 
@@ -247,7 +253,7 @@ if (isset($_GET["sys"]))
 }
 
 /*
-*	Voice Attack Closest Station
+*	Closest Station
 */
 
 if (isset($_GET["cs"]))
@@ -267,7 +273,7 @@ if (isset($_GET["cs"]))
 		$usez = $last_coords["z"];
 		$last_system = $last_coords["name"];
 
-		$add2 = "I am unable to determine the coordinates of our current location. Our last known location is the " . $last_system . " system. ";
+		$add2 = "I am unable to determine the coordinates of our current location. Our last known location is the " . tts_override($last_system) . " system. ";
 	}
 
 	$cs_res = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT
@@ -327,7 +333,7 @@ if (isset($_GET["cs"]))
 		"a black market" => $cs_black_market,
 		"refuel" => $cs_refuel,
 		"repair" => $cs_repair,
-		"rearm" => $cs_rearm);
+		"restock" => $cs_rearm);
 
 	$count = 0;
 	foreach ($cs_facilities as $cs_name => $cs_included)
@@ -363,7 +369,7 @@ if (isset($_GET["cs"]))
 	}
 
 	$article = "";
-	if ($cs_type != "")
+	if (!empty($cs_type))
 	{
 		if (preg_match('/([aeiouAEIOU])/', $cs_type{0}))
 		{
@@ -385,8 +391,9 @@ if (isset($_GET["cs"]))
 	}
 
 	echo ' ' . $cs_station_name;
-	if ($cs_type != "")
+	if (!empty($cs_type))
 	{
+		$cs_type = str_ireplace("Unknown Planetary", "unknown planetary port", $cs_type);
 		echo ' is ' . $article . ' ' . $cs_type;
 	}
 	if ($cs_ls_from_star != 0)
@@ -404,7 +411,7 @@ if (isset($_GET["cs"]))
 }
 
 /*
-*	Voice Attack Random Musings
+*	Random Musings
 */
 
 if (isset($_GET["rm"]))
@@ -414,7 +421,7 @@ if (isset($_GET["rm"]))
 														WHERE used = '0'
 														ORDER BY rand()
 														LIMIT 1")
-	or write_log(mysqli_error($GLOBALS["___mysqli_ston"]), __FILE__, __LINE__);
+														or write_log(mysqli_error($GLOBALS["___mysqli_ston"]), __FILE__, __LINE__);
 	$arr = mysqli_fetch_assoc($res);
 
 	$rm_id = $arr["id"];
@@ -425,8 +432,95 @@ if (isset($_GET["rm"]))
 												SET used = '1'
 												WHERE id = '" . $rm_id . "'
 												LIMIT 1")
-	or write_log(mysqli_error($GLOBALS["___mysqli_ston"]), __FILE__, __LINE__);
+												or write_log(mysqli_error($GLOBALS["___mysqli_ston"]), __FILE__, __LINE__);
 
 	((is_null($___mysqli_res = mysqli_close($link))) ? false : $___mysqli_res);
+
+	exit;
+}
+
+/*
+*	current system short
+*/
+
+if (isset($_GET["sys_short"]))
+{
+	$va_text .= "unknown";
+	if (!empty($curSys["name"]))
+	{
+		$va_text = $curSys["name"];
+	}
+
+	echo tts_override($va_text);
+
+	exit;
+}
+
+/*
+*	distance to X
+*/
+
+if (isset($_GET["dist"]))
+{
+	$to = $_GET["dist"];
+
+	$distance = "";
+
+	//write_log($to);
+
+	$to = str_replace("system", "", $to);
+
+	if (system_exists($to))
+	{
+		if (valid_coordinates($curSys["x"], $curSys["y"], $curSys["z"]))
+		{
+			$res = mysqli_query($GLOBALS["___mysqli_ston"], "	SELECT
+																sqrt(pow((IFNULL(edtb_systems.x, user_systems_own.x)-(" . $curSys["x"] . ")),2)+pow((IFNULL(edtb_systems.y, user_systems_own.y)-(" . $curSys["y"] . ")),2)+pow((IFNULL(edtb_systems.z, user_systems_own.z)-(" . $curSys["z"] . ")),2))
+																AS distance
+																FROM edtb_systems
+																LEFT JOIN user_systems_own ON edtb_systems.name = user_systems_own.name
+																WHERE edtb_systems.name = '" . mysqli_real_escape_string($GLOBALS["___mysqli_ston"], $to) . "'
+																LIMIT 1")
+																or write_log(mysqli_error($GLOBALS["___mysqli_ston"]), __FILE__, __LINE__);
+
+			$arr = mysqli_fetch_assoc($res);
+			$distance = number_format($arr["distance"], 1);
+		}
+	}
+	else
+	{
+		$distance = "I'm sorry, I didn't get that.";
+	}
+
+	echo $distance;
+
+	((is_null($___mysqli_res = mysqli_close($link))) ? false : $___mysqli_res);
+
+	exit;
+}
+
+/*
+*	curSys access
+*/
+
+if (isset($_GET["curSys"]))
+{
+	$search = $_GET["curSys"];
+
+	$info = "";
+
+	if (array_key_exists($search, $curSys))
+	{
+		$info = $curSys[$search] == "" ? "None" : $curSys[$search];
+	}
+	else
+	{
+		$info = "" . $search . " is not recognised";
+	}
+
+	echo $info;
+
+	((is_null($___mysqli_res = mysqli_close($link))) ? false : $___mysqli_res);
+
 	exit;
 }

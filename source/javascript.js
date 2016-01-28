@@ -1,9 +1,7 @@
 /*
 *    ED ToolBox, a companion web app for the video game Elite Dangerous
-*    (C) 1984 - 2015 Frontier Developments Plc.
+*    (C) 1984 - 2016 Frontier Developments Plc.
 *    ED ToolBox or its creator are not affiliated with Frontier Developments Plc.
-*
-*    Copyright (C) 2016 Mauri Kujala (contact@edtb.xyz)
 *
 *    This program is free software; you can redistribute it and/or
 *    modify it under the terms of the GNU General Public License
@@ -19,6 +17,14 @@
 *    along with this program; if not, write to the Free Software
 *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
+
+/**
+ * Javascript
+ *
+ * @author Mauri Kujala <contact@edtb.xyz>
+ * @copyright Copyright (C) 2016, Mauri Kujala
+ * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU Public License version 2
+ */
 
 var zindexmax = 100000;
 
@@ -91,14 +97,23 @@ function get_data(override)
     if (override == true)
 	{
         requestno = 0;
+		time = 0;
     }
+	else
+	{
+		time = 4800;
+	}
 
 	system_id = getUrlVars()["system_id"];
 	system_name = getUrlVars()["system_name"];
+
+	slog_sort = getUrlVars()["slog_sort"];
+	glog_sort = getUrlVars()["glog_sort"];
+
     // get system info and log
     $.ajax(
     {
-        url: "/get/getData.php?request="+requestno+"&system_id="+system_id+"&system_name="+system_name,
+        url: "/get/getData.php?request="+requestno+"&system_id="+system_id+"&system_name="+system_name+"&slog_sort="+slog_sort+"&glog_sort="+glog_sort,
         cache: false,
         dataType: 'json',
         success: function(result)
@@ -113,6 +128,25 @@ function get_data(override)
                 $('#systeminfo').html(result['system_info']);
                 $('#scrollable').html(result['log_data']);
                 $('#stations').html(result['station_data']);
+
+				/*if (result['cmdr_status'] != "false")
+				{
+					$('#cmdr_status').html(result['cmdr_status']);
+				}
+
+				if (result['ship_status'] != "false")
+				{
+					$('#ship_status').html(result['ship_status']);
+				}*/
+
+				if (result['notifications'] != "false")
+				{
+					$('#notifications').html(result['notifications']);
+					if (result['notifications_data'] != "false")
+					{
+						$('#notice_new').html(result['notifications_data']);
+					}
+				}
 
 				// clear reference distances if we're in a new system
 				if (result['new_sys'] != "false")
@@ -155,6 +189,29 @@ function get_data(override)
             requestno = 1;
         }
     });
+
+    // get api data
+	setTimeout(function()
+	{
+		$.ajax(
+		{
+			url: "/get/getData_status.php",
+			cache: false,
+			dataType: 'json',
+			success: function(result)
+			{
+				if (result['cmdr_status'] != "false")
+				{
+					$('#cmdr_status').html(result['cmdr_status']);
+				}
+
+				if (result['ship_status'] != "false")
+				{
+					$('#ship_status').html(result['ship_status']);
+				}
+			}
+		});
+	}, time);
 }
 
 $(function()
@@ -532,7 +589,7 @@ function showResult(str, divid, link, station, idlink, sysid, dp)
         if (xmlhttp.readyState==4 && xmlhttp.status==200) {
             document.getElementById("suggestions_"+divid).innerHTML=xmlhttp.responseText;
         }
-    }
+    };
 
 	allegiance = getUrlVars()["allegiance"];
 	system_allegiance = getUrlVars()["system_allegiance"];
@@ -977,4 +1034,54 @@ function escapeRegExp(str)
 function replaceAll(str, find, replace)
 {
   return str.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+}
+
+/*
+*	refresh api data
+*/
+
+function refresh_api()
+{
+	$.ajax({
+	url: "/get/getAPIdata.php?override",
+	cache: false,
+    dataType: 'json',
+	success: function(result)
+	{
+		//
+	}
+	});
+
+	$('#api_refresh').html('<img src="/style/img/check_24.png"  alt="Refresh done" style="height:24px;width:24px" />');
+
+	// wait a couple of seconds before updating data
+	setTimeout(function()
+	{
+		get_data(true);
+	}, 2500);
+
+	setTimeout(function()
+	{
+		$('#api_refresh').html('<img src="/style/img/refresh_24.png" alt="Refresh" style="height:24px;width:24px" />');
+	}, 30000);
+}
+
+/*
+*	ignore version update
+*/
+
+function ignore_version(version)
+{
+	$.ajax({
+	url: "/admin/setData.php?ignore_version="+version,
+	cache: false,
+    dataType: 'json',
+	success: function(result)
+	{
+		//
+	}
+	});
+
+	$("#notice_new").fadeToggle("fast");
+	$("#notifications").fadeToggle("fast");
 }
